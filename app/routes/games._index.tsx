@@ -1,7 +1,14 @@
 import { useState } from "react"
 
+type Answer = {
+  left: string
+  right: string
+}
+
 export default function Index() {
-  const [answer, setAnswer] = useState({ left: "", right: "" })
+  const [answer, setAnswer] = useState<Answer>({ left: "", right: "" })
+  const [score, setScore] = useState(0)
+
   const handleClick = (e: any) => {
     const currentAnswer = e.target.innerHTML
     if (answer.left === "") {
@@ -11,14 +18,19 @@ export default function Index() {
     setAnswer({ ...answer, right: currentAnswer })
 
     if (answer.left === currentAnswer) {
-      console.log("終了！")
+      alert("正解！")
+      setScore(score + 1)
+      // window.location.reload()
     } else {
-      console.log("続行！")
+      console.log("不正解！")
+      setAnswer({ left: "", right: "" })
     }
   }
+
   return (
     <>
-      <h2> 説明 </h2>
+      <h2>説明</h2>
+      <h3>スコア: {score}</h3>
       <div className="flex space-between bg-slate-100">
         <div
           className="h-24 w-24 border-solid border-2 bg-white"
