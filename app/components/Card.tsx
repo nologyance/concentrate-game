@@ -3,6 +3,7 @@ import { FC } from "react"
 type Card = {
   id: string
   isOpened: boolean
+  isAcquired: boolean
   value: number
   primeFactors: number[]
 }
