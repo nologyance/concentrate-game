@@ -9,13 +9,13 @@ type Card = {
 }
 
 type Props = Card & {
-  onClick: (id: string) => void
+  onClick: (card: Card) => void
 }
 
-const Card: FC<Props> = ({ id, isOpened, value, primeFactors, onClick }) => {
-  const handleClick = (e: any) => {
+const Card: FC<Props> = ({ id, isOpened, isAcquired, value, primeFactors, onClick }) => {
+  const handleClick = () => {
     if (!isOpened) {
-      onClick(id)
+      onClick({ id, isOpened, isAcquired,  value, primeFactors })
     }
   }
   return (

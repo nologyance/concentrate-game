@@ -1,148 +1,68 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import Card from "~/components/Card"
-
-type Answer = {
-  left: {
-    id: string
-    value?: number
-    primeFactors?: number[]
-  }
-  right: {
-    id: string
-    value?: number
-    primeFactors?: number[]
-  }
-}
-
-type Cards = Card[]
+import Lock from "~/components/Lock"
+import useAnswer from "~/components/useAnswer"
+import useCards, { Cards } from "~/components/useCards"
+import useLock from "~/components/useLock"
+import useScore from "~/components/useScore"
 
 export default function Index() {
-  const [isLocked, setIsLocked] = useState(false)
-  const [answer, setAnswer] = useState<Answer>({
-    left: {
-      id: "",
-    },
-    right: {
-      id: "",
-    },
-  })
-  const [cards, setCards] = useState<Cards>([
-    { id: "0", isOpened: false, isAcquired: false, value: 51, primeFactors: [3, 17] },
-    { id: "1", isOpened: false, isAcquired: false,  value: 85, primeFactors: [5, 17] },
-    { id: "2", isOpened: false, isAcquired: false,  value: 3, primeFactors: [3] },
-    { id: "3", isOpened: false, isAcquired: false,  value: 9, primeFactors: [3, 3] },
-    { id: "4", isOpened: false, isAcquired: false,  value: 5, primeFactors: [5] },
-    { id: "5", isOpened: false, isAcquired: false,  value: 25, primeFactors: [5, 5] },
-  ])
-  const [score, setScore] = useState(0)
-
-  const faceUp = (cardId: string) => {
-    const newCards = cards.map((card) => {
-      if (card.id === cardId) {
-        return { ...card, isOpened: true }
-      }
-      return card
-    })
-    setCards(newCards)
-  }
-
-  const acquire = (cardId: string) => {
-    const toAcquired = (cards: Cards) => cards.map((card) => {
-      if (card.id === cardId) {
-        return { ...card, isAcquired: true }
-      }
-      return card
-    })
-    setCards((cards) => toAcquired(cards))
-  }
+  const [
+    answer,
+    { resetAnswer, checkAnswer, setFirstAnswerPart, setSecondAnswerPart },
+  ] = useAnswer()
+  const [score, { incrementScore }] = useScore()
+  const [isLocked, { lock, unlock }] = useLock()
+  const [cards, { faceUpCardBy, faceDownCardBy, acquire }] = useCards()
 
   const faceDownAnswered = (cards: Cards) => {
-    const newCards = cards.map((card) => {
-      if (answer.left.id === card.id || answer.right.id === card.id) {
-        return { ...card, isOpened: false }
+    cards.map((card) => {
+      if (card.isOpened && card.id === answer.first.id) {
+        faceDownCardBy(card.id)
       }
-      return card
-    })
-    setCards(newCards)
-  }
-
-  const addScore = (score: number) => {
-    setScore(score + 1)
-  }
-
-  const resetAnswer = () => {
-    setAnswer({
-      left: {
-        id: "",
-      },
-      right: {
-        id: "",
-      },
+      if (card.isOpened && card.id === answer.second.id) {
+        faceDownCardBy(card.id)
+      }
     })
   }
 
-  const checkAnswer = ({ left, right }: Answer) => {
-    return left.primeFactors?.some((f) => right.primeFactors?.includes(f))
-  }
+  const handleClick = ({ id, value, primeFactors }: Card) => {
+    faceUpCardBy(id)
 
-  // IDから引き直さなくて良いはず
-  const handleClick = (cardId: string) => {
-    faceUp(cardId)
-
-    if (answer.left.id === "") {
-      setAnswer({
-        left: {
-          id: cardId,
-          value: cards.find((card) => card.id === cardId)!.value,
-          primeFactors: cards.find((card) => card.id === cardId)!.primeFactors,
-        },
-        right: {
-          id: "",
-          value: 0,
-          primeFactors: [],
-        },
-      })
+    if (answer.first.id === "") {
+      setFirstAnswerPart({ id, value, primeFactors })
       return
     }
-    setAnswer({
-      ...answer,
-      right: {
-        id: cardId,
-        value: cards.find((card) => card.id === cardId)!.value,
-        primeFactors: cards.find((card) => card.id === cardId)!.primeFactors,
-      },
-    })
+    setSecondAnswerPart({ id, value, primeFactors })
   }
 
   useEffect(() => {
-    if (answer.left.id !== "" && answer.right.id !== "") {
+    if (answer.first.id !== "" && answer.second.id !== "") {
       if (checkAnswer(answer)) {
         // transitionの時間を考慮して1秒待つ
-        setIsLocked(true)
+        lock()
         setTimeout(() => {
           alert("正解！")
-          acquire(answer.left.id)
-          acquire(answer.right.id)
-          addScore(score)
+          acquire(answer.first.id)
+          acquire(answer.second.id)
+          incrementScore()
           resetAnswer()
-          setIsLocked(false)
+          unlock()
         }, 1000)
-        // window.location.reload()
       } else {
         // transitionの時間を考慮して1秒待つ
-        setIsLocked(true)
+        lock()
         setTimeout(() => {
           alert("不正解！")
           faceDownAnswered(cards)
           resetAnswer()
-          setIsLocked(false)
+          unlock()
         }, 1000)
       }
     }
   }, [answer, cards])
 
   useEffect(() => {
-    // scoreが変わったときでも良さそう
     if (cards.every((card) => card.isAcquired)) {
       alert("クリア！")
       // window.location.reload()
@@ -151,12 +71,8 @@ export default function Index() {
 
   return (
     <>
-      {isLocked && (
-        <div className="fixed h-full w-full z-50 bg-gray-100/50 items-center justify-center flex">
-          <div className="fixed animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-        </div>
-      )}
-      <h2>説明</h2>
+      <Lock isLocked={isLocked} />
+      <h2>同じ数で割り切れるペアを探そう</h2>
       <h3>スコア: {score}</h3>
       <div className="flex space-between bg-slate-100">
         {cards.map((card) => (
@@ -164,13 +80,37 @@ export default function Index() {
         ))}
       </div>
       <div className="flex">
-        {answer.left.value && (
+        {answer.first.value && (
           <>
-            <div className="h-24 w-24 border-solid border-2 bg-white">
-              {answer.left.value}
+            <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
+              <div className="items-start pt-8">{answer.first.value}</div>
+              <div className="flex justify-center">
+                {answer.first.primeFactors?.map((f, i) => (
+                  <div className="flex">
+                    <div key={i} className="w-1/3 pt-8">
+                      {f}
+                    </div>
+                    {answer.first.primeFactors?.length! - 1 === i ? null : (
+                      <div className="pt-8 px-4">×</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="h-24 w-24 border-solid border-2 bg-white">
-              {answer.right.value}
+            <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
+              <div className="items-start pt-8">{answer.second.value}</div>
+              <div className="flex justify-center">
+                {answer.second.primeFactors?.map((f, i) => (
+                  <div className="flex">
+                    <div key={i} className="w-1/3 pt-8">
+                      {f}
+                    </div>
+                    {answer.second.primeFactors?.length! - 1 === i ? null : (
+                      <div className="pt-8 px-4">×</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
