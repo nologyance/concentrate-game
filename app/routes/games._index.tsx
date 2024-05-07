@@ -83,7 +83,7 @@ export default function Index() {
         {answer.first.value && (
           <>
             <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-              <div className="items-start pt-8">{answer.first.value}</div>
+              <div className="items-start pt-8 font-bold text-xl">{answer.first.value}</div>
               <div className="flex justify-center">
                 {answer.first.primeFactors?.map((f, i) => (
                   <div className="flex">
@@ -98,7 +98,7 @@ export default function Index() {
               </div>
             </div>
             <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-              <div className="items-start pt-8">{answer.second.value}</div>
+              <div className="items-start pt-8 font-bold text-xl">{answer.second.value}</div>
               <div className="flex justify-center">
                 {answer.second.primeFactors?.map((f, i) => (
                   <div className="flex">
