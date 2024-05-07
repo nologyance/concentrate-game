@@ -74,16 +74,18 @@ export default function Index() {
       <Lock isLocked={isLocked} />
       <h2>同じ数で割り切れるペアを探そう</h2>
       <h3>スコア: {score}</h3>
-      <div className="flex space-between bg-slate-100">
+      <div className="flex flex-wrap space-between bg-slate-100">
         {cards.map((card) => (
           <Card key={card.id} {...card} onClick={handleClick} />
         ))}
       </div>
       <div className="flex">
-        {answer.first.value && (
-          <>
-            <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-              <div className="items-start pt-8 font-bold text-xl">{answer.first.value}</div>
+        <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
+          {answer.first.value && (
+            <>
+              <div className="items-start pt-8 font-bold text-xl">
+                {answer.first.value}
+              </div>
               <div className="flex justify-center">
                 {answer.first.primeFactors?.map((f, i) => (
                   <div className="flex">
@@ -96,9 +98,16 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-            </div>
-            <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-              <div className="items-start pt-8 font-bold text-xl">{answer.second.value}</div>
+            </>
+          )}
+        </div>
+
+        <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
+          {answer.second.value && (
+            <>
+              <div className="items-start pt-8 font-bold text-xl">
+                {answer.second.value}
+              </div>
               <div className="flex justify-center">
                 {answer.second.primeFactors?.map((f, i) => (
                   <div className="flex">
@@ -111,9 +120,9 @@ export default function Index() {
                   </div>
                 ))}
               </div>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </div>
     </>
   )
