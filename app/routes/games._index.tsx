@@ -1,4 +1,5 @@
 import { useEffect } from "react"
+import AnswerArea from "~/components/AnswerArea"
 import Card from "~/components/Card"
 import Lock from "~/components/Lock"
 import useAnswer from "~/components/useAnswer"
@@ -80,49 +81,8 @@ export default function Index() {
         ))}
       </div>
       <div className="flex">
-        <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-          {answer.first.value && (
-            <>
-              <div className="items-start pt-8 font-bold text-xl">
-                {answer.first.value}
-              </div>
-              <div className="flex justify-center">
-                {answer.first.primeFactors?.map((f, i) => (
-                  <div className="flex">
-                    <div key={i} className="w-1/3 pt-8">
-                      {f}
-                    </div>
-                    {answer.first.primeFactors?.length! - 1 === i ? null : (
-                      <div className="pt-8 px-4">×</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex-col flex-wrap h-48 w-48 border-solid border-2 bg-white text-center">
-          {answer.second.value && (
-            <>
-              <div className="items-start pt-8 font-bold text-xl">
-                {answer.second.value}
-              </div>
-              <div className="flex justify-center">
-                {answer.second.primeFactors?.map((f, i) => (
-                  <div className="flex">
-                    <div key={i} className="w-1/3 pt-8">
-                      {f}
-                    </div>
-                    {answer.second.primeFactors?.length! - 1 === i ? null : (
-                      <div className="pt-8 px-4">×</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        <AnswerArea {...answer.first} />
+        <AnswerArea {...answer.second} />
       </div>
     </>
   )
